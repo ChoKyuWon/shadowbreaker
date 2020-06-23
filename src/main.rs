@@ -1,11 +1,18 @@
-// use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+// use std::error::Error;
 // use std::env; //for argv
 // use crypto::sha2::{Sha256, Sha512};
 // use crypto::digest::Digest;
 // use crypto::md5;
+
+fn case_gen(len: i32){
+    let v : Vec<&str>;
+    const start : char = 32 as char;
+    const end : char = 126 as char;
+    v.push(start*len);
+}
 
 fn md5_bruteforce(salt :&str, value:&str){
     println!("{}, {}", salt, value);
