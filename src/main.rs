@@ -1,14 +1,15 @@
+// use std::error::Error;
+// use std::env; //for argv
+// use crypto::md5::Md5;
+// use crypto::sha2::{Sha256, Sha512};
+// use crypto::digest::Digest;
+
+use std::io::{self, Read};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::char;
-
-// use std::error::Error;
-// use std::env; //for argv
-use crypto::md5::Md5;
-use crypto::sha2::{Sha256, Sha512};
-use crypto::digest::Digest;
-
+use std::thread;
 use pwhash::unix::crypt;
 
 fn case_gen(len: usize) -> Vec<String>{
@@ -28,64 +29,57 @@ fn case_gen(len: usize) -> Vec<String>{
         }
     }
     return v;
-
-    //v.push(std::iter::repeat(start).take(len).collect::<String>());
 }
 
-// fn md5_bruteforce(salt :&str, value:&str, case:&Vec<String>){
-//     let hashed_case = Vec::new();
-//     println!("{}, {}", salt, value);
+// fn __bruteforce(func :&str, salt :&str, value:&str, cases :&Vec<String>){
+//     let hashed_case: Vec<String> = Vec::new();
+//     match func{
+//         "1" => {
+//             for case in cases{
+//                 let mut h = Md5::new();
+//                 h.input(case.as_bytes());
+//                 let mut out = [0; 16];
+//                 h.result(&mut out);
+//                 println!("Hashed value: {:?}, origin value: {}",out, case);
+//             }
+//         },
+//         "5" => {
+//             for case in cases{
+//                 let mut h = Sha256::new();
+//                 h.input(case.as_bytes());
+//                 let mut out = [0; 32];
+//                 h.result(&mut out);
+//                 println!("Hashed value: {:?}, origin value: {}",out, case);
+//             }
+//         },
+//         "6" => {
+//             for case in cases{
+//                 let mut h = Sha512::new();
+//                 h.input(case.as_bytes());
+//                 let mut out = [0; 64];
+//                 h.result(&mut out);
+//                 println!("Hashed value: {:?}, origin value: {}",out, case);
+//             }
+//         },
+//         _ => println!("{}: This algorithm is not supported, sorry.", func),
+//     }
 // }
 
-// fn sha256_bruteforce(salt :&str, value:&str, case:&Vec<String>){
-//     println!("{}, {}", salt, value);
-// }
-
-// fn sha512_bruteforce(salt :&str, value:&str, case:&Vec<String>){
-//     println!("{}, {}", salt, value);
-// }
-
-fn __bruteforce(func :&str, salt :&str, value:&str, cases :&Vec<String>){
-    let hashed_case: Vec<String> = Vec::new();
-    match func{
-        "1" => {
-            for case in cases{
-                let mut h = Md5::new();
-                h.input(case.as_bytes());
-                let mut out = [0; 16];
-                h.result(&mut out);
-                println!("Hashed value: {:?}, origin value: {}",out, case);
-            }
-        },
-        "5" => {
-            for case in cases{
-                let mut h = Sha256::new();
-                h.input(case.as_bytes());
-                let mut out = [0; 32];
-                h.result(&mut out);
-                println!("Hashed value: {:?}, origin value: {}",out, case);
-            }
-        },
-        "6" => {
-            for case in cases{
-                let mut h = Sha512::new();
-                h.input(case.as_bytes());
-                let mut out = [0; 64];
-                h.result(&mut out);
-                println!("Hashed value: {:?}, origin value: {}",out, case);
-            }
-        },
-        _ => println!("{}: This algorithm is not supported, sorry.", func),
-    }
-}
-
-fn bruteforce(salt: &str, cases :&Vec<String>){
+fn bruteforce(salt: &str, cases :&Vec<String>, h :&str) {
     for case in cases{
-        println!("{}", crypt(case, salt).ok().unwrap());
+        
+        let res = crypt(case, salt).ok().unwrap();
+        if h == res{
+            println!("  [O]We found password! It's \"{}\".", case);
+            println!("{}\n{}", h, res);
+            return;
+        }
     }
+    println!("  [X]We can't find password. Maybe you extend password length and retry it.");
 }
 fn main() {
-    let case = case_gen(1);
+    let case = case_gen(3);
+    let mut username: String;
     let path = Path::new("shadow");
     let display = path.display();
 
@@ -106,13 +100,13 @@ fn main() {
         let username = v[0];
         let h = match v[1] {
             "!!" => continue,
+            "*" => continue,
             _ => v[1],
         };
         println!("[*]Username {}: crack start.", username);
 
-        bruteforce(h, &case);
-
-        // let hashed: Vec<&str> = h.split('$').collect();
-        // __bruteforce(hashed[1], hashed[2], hashed[3], &case);
+        let hashed: Vec<&str> = h.split('$').collect();
+        let salt = format!("${}${}", hashed[1], hashed[2]);
+        bruteforce(&salt, &case, h);
     }
 }
