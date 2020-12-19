@@ -50,6 +50,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "pwhash"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e13b76f7965ed95c1dfe1f5eb5607d12de34af86140212dde3defa15c8ccbe0f"
+dependencies = [
+ "rand 0.3.23",
+ "rust-crypto",
+]
+
+[[package]]
 name = "rand"
 version = "0.3.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -122,6 +132,7 @@ dependencies = [
  "base64",
  "hex",
  "num_cpus",
+ "pwhash",
  "rand 0.4.6",
  "rust-crypto",
 ]
