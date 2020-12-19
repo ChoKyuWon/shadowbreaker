@@ -1,17 +1,32 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::char;
 // use std::error::Error;
 // use std::env; //for argv
 // use crypto::sha2::{Sha256, Sha512};
 // use crypto::digest::Digest;
 // use crypto::md5;
 
-fn case_gen(len: i32){
-    let v : Vec<&str>;
+fn case_gen(len: usize) -> Vec<String>{
+    let mut v : Vec<String> = Vec::new();
     const start : char = 32 as char;
     const end : char = 126 as char;
-    v.push(start*len);
+    if(len == 1){
+        for ch in 32..126{
+            v.push(String::from(ch as u8 as char));
+        }
+        return v;
+    }
+    for index in 0..len{
+        let prev: String;
+        for ch in 32..126{
+            v.push("aa".to_string());
+        }
+    }
+    return v;
+
+    //v.push(std::iter::repeat(start).take(len).collect::<String>());
 }
 
 fn md5_bruteforce(salt :&str, value:&str){
