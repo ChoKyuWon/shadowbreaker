@@ -18,7 +18,8 @@ fn case_gen(len: usize) -> Vec<String>{
         }
         return v;
     }
-    for index in 0..len{
+    for index in 2..len+1{
+        println!("Loop!");
         let prev: String;
         for ch in 32..126{
             v.push("aa".to_string());
@@ -59,10 +60,12 @@ fn main() {
     let shadows: Vec<&str> = s.split('\n').collect();
     for shadow in shadows{
         let v: Vec<&str> = shadow.split(':').collect();
+        let username = v[0];
         let h = match v[1] {
             "!!" => continue,
             _ => v[1],
         };
+        println!("[*]Username {}: crack start.", username);
         let hashed: Vec<&str> = h.split('$').collect();
         match hashed[1]{
             "1" => md5_bruteforce(hashed[2], hashed[3]), //MD5
@@ -71,4 +74,5 @@ fn main() {
             _ => println!("{}: This algorithm is not supported", v[0]),
         }
     }
+    case_gen(2);
 }
