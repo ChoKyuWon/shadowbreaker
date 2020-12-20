@@ -63,6 +63,7 @@ fn main() {
         let username = v[0];
         let h = match v[1] {
             "!!" => continue,
+            "!" => continue,
             "*" => continue,
             _ => v[1],
         };
