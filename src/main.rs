@@ -4,20 +4,24 @@ use std::char;
 use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
+use std::time::SystemTime;
 
 fn case_gen(len: usize) -> Vec<String> {
     let mut v: Vec<String> = Vec::new();
-    if (len == 1) {
+    if len == 1 {
         for ch in 32u8..127 {
-            v.push(String::from(ch as char));
+            let mut s: String = String::with_capacity(1);
+            s.push(ch as char);
+            v.push(s);
         }
         return v;
     }
     let prevs = case_gen(len - 1);
     for prev in prevs {
         for ch in 32u8..127 {
-            let mut tmp_string: String = prev.to_owned();
-            tmp_string.push_str(&String::from(ch as char));
+            let mut tmp_string: String = String::with_capacity(len);
+            tmp_string.push_str(&prev.to_owned());
+            tmp_string.push(ch as char);
             v.push(tmp_string);
         }
     }
@@ -99,9 +103,14 @@ fn main() {
                 }
                 let case = case_gen(l);
                 println!("[*]Finish generate case. Let's start make some hash.");
+                let now = SystemTime::now();
                 let hashed: Vec<&str> = h.split('$').collect();
                 let salt = format!("${}${}", hashed[1], hashed[2]);
                 bruteforce(&salt, &case, h);
+                match now.elapsed() {
+                    Ok(elapsed) => println!("It take {} time.", elapsed.as_micros()),
+                    Err(e) => println!("Error on time: {:?}", e),
+                }
             }
             "n" => continue,
             _ => continue,
