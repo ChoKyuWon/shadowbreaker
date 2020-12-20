@@ -26,15 +26,15 @@ fn case_gen(len: usize) -> Vec<String> {
 
 fn bruteforce(salt: &str, cases: &Vec<String>, h: &str) {
     let crypt_lamda = |case: &str, salt: &str, h: &str| h == crypt(case, salt).ok().unwrap();
-    static mut flag: bool = false;
+    static mut FLAG: bool = false;
     let res: Vec<_> = cases
         .par_iter()
         .filter_map(|case| unsafe {
-            if flag {
+            if FLAG {
                 return None;
             }
             if crypt_lamda(case, salt, h) {
-                flag = true;
+                FLAG = true;
                 Some(case)
             } else {
                 None
