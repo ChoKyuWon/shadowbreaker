@@ -1,13 +1,6 @@
-// use std::error::Error;
-// use std::env; //for argv
-// use crypto::md5::Md5;
-// use crypto::sha2::{Sha256, Sha512};
-// use crypto::digest::Digest;
-
 use pwhash::unix::crypt;
 use rayon::prelude::*;
 use std::char;
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
@@ -31,55 +24,8 @@ fn case_gen(len: usize) -> Vec<String> {
     return v;
 }
 
-// fn __bruteforce(func :&str, salt :&str, value:&str, cases :&Vec<String>){
-//     let hashed_case: Vec<String> = Vec::new();
-//     match func{
-//         "1" => {
-//             for case in cases{
-//                 let mut h = Md5::new();
-//                 h.input(case.as_bytes());
-//                 let mut out = [0; 16];
-//                 h.result(&mut out);
-//                 println!("Hashed value: {:?}, origin value: {}",out, case);
-//             }
-//         },
-//         "5" => {
-//             for case in cases{
-//                 let mut h = Sha256::new();
-//                 h.input(case.as_bytes());
-//                 let mut out = [0; 32];
-//                 h.result(&mut out);
-//                 println!("Hashed value: {:?}, origin value: {}",out, case);
-//             }
-//         },
-//         "6" => {
-//             for case in cases{
-//                 let mut h = Sha512::new();
-//                 h.input(case.as_bytes());
-//                 let mut out = [0; 64];
-//                 h.result(&mut out);
-//                 println!("Hashed value: {:?}, origin value: {}",out, case);
-//             }
-//         },
-//         _ => println!("{}: This algorithm is not supported, sorry.", func),
-//     }
-// }
-
-// fn crypt_lamda(case: &str, salt: &str, ret: &mut String) {
-//     *ret = crypt(case, salt).ok().unwrap();
-// }
-
 fn bruteforce(salt: &str, cases: &Vec<String>, h: &str) {
-    // cases
-    //     .par_iter()
-    //     .for_each(|case| crypt(case, salt).ok().unwrap());
-
-    let crypt_lamda = |case: &str, salt: &str, h: &str| {
-        // let p = format!("{}\n", case);
-        // io::stderr().write_all(p.as_bytes()).expect("Write Err...");
-        h == crypt(case, salt).ok().unwrap()
-    };
-    // let mut res: HashMap<bool, &str> = cases
+    let crypt_lamda = |case: &str, salt: &str, h: &str| h == crypt(case, salt).ok().unwrap();
     let res: Vec<_> = cases
         .par_iter()
         .filter_map(|case| {
@@ -95,19 +41,6 @@ fn bruteforce(salt: &str, cases: &Vec<String>, h: &str) {
         println!("  [O]We found password! It's \"{}\".", r);
         return;
     }
-    // for case in cases.par_iter() {
-    //     let res = crypt(case, salt).ok().unwrap();
-    //     if h == res {
-    //         println!("  [O]We found password! It's \"{}\".", case);
-    //         println!("{}\n{}", h, res);
-    //         return;
-    //     } else {
-    //         let p = format!("{}\n", case);
-    //         io::stderr()
-    //             .write_all(p.as_bytes())
-    //             .expect("Write Error...");
-    //     }
-    // }
     println!("  [X]We can't find password. Maybe you change password length and retry it.");
 }
 
