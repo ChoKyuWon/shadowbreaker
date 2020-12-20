@@ -7,6 +7,7 @@
 use pwhash::unix::crypt;
 use rayon::prelude::*;
 use std::char;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
@@ -73,21 +74,41 @@ fn bruteforce(salt: &str, cases: &Vec<String>, h: &str) {
     //     .par_iter()
     //     .for_each(|case| crypt(case, salt).ok().unwrap());
 
-    // let crypt_lamda = |case: &str, salt: &str| crypt(case, salt).ok().unwrap();
-    for case in cases.iter() {
-        let res = crypt(case, salt).ok().unwrap();
-        if h == res {
-            println!("  [O]We found password! It's \"{}\".", case);
-            println!("{}\n{}", h, res);
-            return;
-        } else {
-            let p = format!("{}\n", case);
-            io::stderr()
-                .write_all(p.as_bytes())
-                .expect("Write Error...");
-        }
+    let crypt_lamda = |case: &str, salt: &str, h: &str| {
+        // let p = format!("{}\n", case);
+        // io::stderr().write_all(p.as_bytes()).expect("Write Err...");
+        h == crypt(case, salt).ok().unwrap()
+    };
+    // let mut res: HashMap<bool, &str> = cases
+    let res: Vec<_> = cases
+        .par_iter()
+        .filter_map(|case| {
+            if crypt_lamda(case, salt, h) {
+                Some(case)
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    for r in res {
+        println!("  [O]We found password! It's \"{}\".", r);
+        return;
     }
-    println!("  [X]We can't find password. Maybe you extend password length and retry it.");
+    // for case in cases.par_iter() {
+    //     let res = crypt(case, salt).ok().unwrap();
+    //     if h == res {
+    //         println!("  [O]We found password! It's \"{}\".", case);
+    //         println!("{}\n{}", h, res);
+    //         return;
+    //     } else {
+    //         let p = format!("{}\n", case);
+    //         io::stderr()
+    //             .write_all(p.as_bytes())
+    //             .expect("Write Error...");
+    //     }
+    // }
+    println!("  [X]We can't find password. Maybe you change password length and retry it.");
 }
 
 fn main() {
@@ -138,6 +159,7 @@ fn main() {
                     break;
                 }
                 let case = case_gen(l);
+                println!("[*]Finish generate case. Let's start make some hash.");
                 let hashed: Vec<&str> = h.split('$').collect();
                 let salt = format!("${}${}", hashed[1], hashed[2]);
                 bruteforce(&salt, &case, h);
